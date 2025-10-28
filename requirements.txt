@@ -1,2 +1,6 @@
 pandas
 dependency-injector
+fastapi
+uvicorn
+python-multipart
+aiofiles

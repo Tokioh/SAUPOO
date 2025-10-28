@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>SAU - Interfaz</title>
+  <link rel="stylesheet" href="/static/css/styles.css">
+  </head>
+  <body>
+    <header>
+      <h1>SAU - Interfaz Web</h1>
+    </header>
+
+    <main>
+      <section id="upload">
+        <h2>Subir archivos</h2>
+        <form id="uploadForm">
+          <label>Oferta académica (CSV): <input type="file" id="ofertaFile" accept=".csv"></label>
+          <label>Matriz postulaciones (CSV): <input type="file" id="postFile" accept=".csv"></label>
+          <button type="submit">Subir</button>
+        </form>
+        <div id="uploadStatus"></div>
+      </section>
+
+      <section id="actions">
+        <h2>Acciones</h2>
+        <div class="actions-row">
+          <button id="btnEjecutar" class="primary">Ejecutar asignación</button>
+          <button id="btnVerResultados" class="secondary">Ver resultados</button>
+          <button id="btnDescargarResultados" class="secondary">Descargar CSV</button>
+        </div>
+        <div id="actionStatus"></div>
+      </section>
+
+      <section id="results">
+        <h2>Resultados</h2>
+        <div id="resultsArea">(Presiona "Ver / Descargar resultados")</div>
+      </section>
+    </main>
+
+    <script src="/static/js/main.js"></script>
+  </body>
+</html>

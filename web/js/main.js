@@ -8,6 +8,27 @@ const btnDescargarResultados = document.getElementById('btnDescargarResultados')
 const actionStatus = document.getElementById('actionStatus')
 const resultsArea = document.getElementById('resultsArea')
 
+// filename displays for custom file controls
+const ofertaFileName = document.getElementById('ofertaFileName')
+const postFileName = document.getElementById('postFileName')
+
+// wire custom "Seleccionar" buttons to the hidden inputs
+document.querySelectorAll('.file-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.dataset.target
+    const inp = document.getElementById(target)
+    if (inp) inp.click()
+  })
+})
+
+// show selected file names
+if (ofertaFile) ofertaFile.addEventListener('change', () => {
+  ofertaFileName.textContent = ofertaFile.files && ofertaFile.files[0] ? ofertaFile.files[0].name : 'Ninguno'
+})
+if (postFile) postFile.addEventListener('change', () => {
+  postFileName.textContent = postFile.files && postFile.files[0] ? postFile.files[0].name : 'Ninguno'
+})
+
 uploadForm.addEventListener('submit', async (e) => {
   e.preventDefault()
   uploadStatus.textContent = ''

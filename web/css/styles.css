@@ -7,6 +7,16 @@ button{background:var(--accent);color:#fff;border:0;padding:10px 14px;border-rad
 button.secondary{background:#e6eefc;color:var(--accent);border:1px solid rgba(11,92,255,0.12)}
 button.primary{background:var(--accent)}
 label{display:block;margin:10px 0}
+/* File upload custom control */
+.file-upload{margin:10px 0}
+.file-label{display:block;margin-bottom:8px;font-weight:600;color:var(--accent)}
+.file-row{display:flex;align-items:center;gap:10px}
+.file-input{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.file-btn{display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--accent);border:1px solid rgba(11,92,255,0.12);padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600}
+.file-btn:hover{background:linear-gradient(180deg,#fbfdff,#eef6ff)}
+.file-btn:focus{outline:3px solid rgba(11,92,255,0.12);outline-offset:2px}
+.file-name{color:#6b7280;font-size:0.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:420px}
+
 #resultsArea{max-height:520px;overflow:auto}
 .actions-row{display:flex;gap:10px;align-items:center}
 .busy{opacity:0.9}
@@ -14,3 +24,10 @@ label{display:block;margin:10px 0}
 .results-table{width:100%;border-collapse:collapse}
 .results-table th{background:#f2f6ff;padding:8px;text-align:left}
 .results-table td{padding:8px;border-top:1px solid #eee}
+
+/* Small responsive tweaks for mobile */
+@media (max-width:520px){
+	.file-row{flex-direction:column;align-items:flex-start}
+	.file-name{max-width:100%}
+	.actions-row{flex-direction:column;align-items:stretch}
+}

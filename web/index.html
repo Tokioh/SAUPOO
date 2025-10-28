@@ -15,8 +15,24 @@
       <section id="upload">
         <h2>Subir archivos</h2>
         <form id="uploadForm">
-          <label>Oferta académica (CSV): <input type="file" id="ofertaFile" accept=".csv"></label>
-          <label>Matriz postulaciones (CSV): <input type="file" id="postFile" accept=".csv"></label>
+          <div class="file-upload">
+            <label class="file-label">Oferta académica (CSV)</label>
+            <div class="file-row">
+              <input type="file" id="ofertaFile" accept=".csv" class="file-input" aria-describedby="ofertaFileName">
+              <button type="button" class="file-btn" data-target="ofertaFile">📁 Seleccionar</button>
+              <span class="file-name" id="ofertaFileName">Ninguno</span>
+            </div>
+          </div>
+
+          <div class="file-upload">
+            <label class="file-label">Matriz postulaciones (CSV)</label>
+            <div class="file-row">
+              <input type="file" id="postFile" accept=".csv" class="file-input" aria-describedby="postFileName">
+              <button type="button" class="file-btn" data-target="postFile">📁 Seleccionar</button>
+              <span class="file-name" id="postFileName">Ninguno</span>
+            </div>
+          </div>
+
           <button type="submit">Subir</button>
         </form>
         <div id="uploadStatus"></div>

@@ -1,0 +1,7 @@
+# Ignorar el entorno virtual
+venv/
+
+# Archivos de credenciales 
+.env
+*.env
+*.env.local

@@ -1,0 +1,58 @@
+{
+  "ponderadores": {
+    "EVALUACION_CAPACIDAD": 0.50,
+    "ANTECEDENTE_ACADEMICO": 0.50
+  },
+  "puntos_adicionales": {
+    "CONDICION_SOCIOECONOMICA_POBREZA": 15,
+    "RURALIDAD": 5,
+    "TERRITORIALIDAD": 10,
+    "VULNERABILIDAD_BASE": 5,
+    "VULNERABILIDAD_MAX": 35,
+    "PUEBLO_NACIONALIDAD": 10
+  },
+  "parametros_proceso": {
+    "max_postulaciones_permitidas": 3
+  },
+  "rutas_archivos": {
+    "oferta_academica": "inputs/oferta_academica.csv",
+    "matriz_postulaciones": "inputs/matriz_postulaciones.csv",
+    "resultados_asignacion": "outputs/asignacion_resultados.csv"
+  },
+  "mapeo_columnas": {
+    "oferta": {
+      "id_carrera": "OFA_ID",
+      "nombre_carrera": "NOMBRE_CARRERA"
+    },
+    "postulaciones": {
+      "id_aspirante": "IDENTIFICACION",
+      "id_carrera": "OFA_ID",
+      "prioridad": "PRIORIDAD_ELECCION_CARRERA",
+      "antecedentes": "ANTECEDENTE_ACADEMICO",
+      "evaluacion": "EVALUACION_CAPACIDAD",
+      "pobreza": "CONDICION_SOCIOECONOMICA_POBREZA",
+      "ruralidad": "RURALIDAD",
+      "territorialidad": "TERRITORIALIDAD",
+      "pueblos_nacionalidades": "PUEBLO_NACIONALIDAD",
+      "discapacidad": "PERSONA_CON_DISCAPACIDAD",
+      "bono_joaquin": "BENEFICIARIO_BONO_JOAQUIN",
+      "victima_violencia": "VICTIMA_VIOLENCIA_GENERO",
+      "migrante_retornado": "MIGRANTE_RETORNADO",
+      "hijo_victima_femicidio": "HIJO_VICTIMA_FEMICIDIO",
+      "enfermedad_catastrofica": "ENFERMEDAD_CATASTROFICA",
+      "acogimiento_institucional": "ACOGIMIENTO_INSTITUCIONAL",
+      "merito_academico": "MERITO_ACADEMICO",
+      "otros_reconocimientos": "OTROS_RECONOCIMIENTOS",
+      "bachiller_curso_actual": "BACHILLER_CURSO_ACTUAL"
+    },
+    "segmentos_cupos": [
+      "OFERTA_POLITICA_CUOTAS",
+      "OFERTA_VULNERABILIDAD_SOCIOECONOMICA",
+      "OFERTA_MERITO_ACADEMICO",
+      "OFERTA_OTROS_RECONOCIMIENTOS",
+      "OFERTA_BACHILLER_P_N",
+      "OFERTA_BACHILLER_CURSO",
+      "OFERTA_GENERAL"
+    ]
+  }
+}

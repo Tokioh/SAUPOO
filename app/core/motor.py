@@ -97,4 +97,8 @@ class MotorAsignacion:
     def obtener_periodos(self) -> List[PeriodoAcademico]:
         """Retorna lista de períodos con rondas registradas."""
         return self.gestor_rondas.obtener_periodos_disponibles()
+    
+    def obtener_resumen_periodo(self, periodo: PeriodoAcademico) -> dict:
+        """Retorna un resumen estadístico de todas las rondas de un período."""
+        return self.gestor_rondas.obtener_resumen_periodo(periodo)
 

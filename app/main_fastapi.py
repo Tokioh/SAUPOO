@@ -157,15 +157,24 @@ async def obtener_historial(
         container = Container()
         motor = container.motor()
         
-        periodo = None
-        if anio and semestre:
-            periodo = PeriodoAcademico(anio=anio, semestre=Semestre(semestre))
+        # Obtener todas las rondas primero
+        rondas = motor.obtener_historial_rondas(None)
         
-        rondas = motor.obtener_historial_rondas(periodo)
+        # Aplicar filtros
+        filtro_aplicado = "Todos"
+        if anio and semestre:
+            rondas = [r for r in rondas if r.periodo.anio == anio and r.periodo.semestre.value == semestre]
+            filtro_aplicado = f"{anio}-{semestre}"
+        elif anio:
+            rondas = [r for r in rondas if r.periodo.anio == anio]
+            filtro_aplicado = f"Año {anio}"
+        elif semestre:
+            rondas = [r for r in rondas if r.periodo.semestre.value == semestre]
+            filtro_aplicado = f"Semestre {semestre}"
         
         return {
             "total_rondas": len(rondas),
-            "filtro_periodo": str(periodo) if periodo else "Todos",
+            "filtro_periodo": filtro_aplicado,
             "rondas": [r.to_dict() for r in rondas]
         }
         

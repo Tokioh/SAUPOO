@@ -265,19 +265,49 @@ async function cargarPeriodos() {
             for (const periodo of data.periodos) {
                 try {
                     const resResponse = await fetch(`/api/periodo/${periodo.anio}/${periodo.semestre}`);
+                    
+                    if (!resResponse.ok) {
+                        // Fallback si el API falla
+                        periodosContainer.innerHTML += `
+                            <div class="periodo-card">
+                                <h3><i class="fas fa-calendar"></i> Período ${periodo.periodo_str}</h3>
+                                <div class="periodo-stats">
+                                    <span><i class="fas fa-layer-group"></i> - rondas</span>
+                                    <span><i class="fas fa-users"></i> - asignados</span>
+                                </div>
+                            </div>
+                        `;
+                        continue;
+                    }
+                    
                     const resumen = await resResponse.json();
+                    
+                    // Usar fallbacks para evitar undefined
+                    const periodoStr = resumen.periodo || periodo.periodo_str || `${periodo.anio}-${periodo.semestre}`;
+                    const totalRondas = resumen.total_rondas ?? 0;
+                    const totalAsignados = resumen.total_asignados ?? 0;
                     
                     periodosContainer.innerHTML += `
                         <div class="periodo-card">
-                            <h3><i class="fas fa-calendar"></i> Período ${resumen.periodo}</h3>
+                            <h3><i class="fas fa-calendar"></i> Período ${periodoStr}</h3>
                             <div class="periodo-stats">
-                                <span><i class="fas fa-layer-group"></i> ${resumen.total_rondas} rondas</span>
-                                <span><i class="fas fa-users"></i> ${resumen.total_asignados} asignados</span>
+                                <span><i class="fas fa-layer-group"></i> ${totalRondas} rondas</span>
+                                <span><i class="fas fa-users"></i> ${totalAsignados} asignados</span>
                             </div>
                         </div>
                     `;
                 } catch (e) {
                     console.error('Error cargando resumen:', e);
+                    // Mostrar tarjeta con datos básicos en caso de error
+                    periodosContainer.innerHTML += `
+                        <div class="periodo-card">
+                            <h3><i class="fas fa-calendar"></i> Período ${periodo.periodo_str || `${periodo.anio}-${periodo.semestre}`}</h3>
+                            <div class="periodo-stats">
+                                <span><i class="fas fa-layer-group"></i> - rondas</span>
+                                <span><i class="fas fa-users"></i> - asignados</span>
+                            </div>
+                        </div>
+                    `;
                 }
             }
         } else {
@@ -291,11 +321,10 @@ async function cargarPeriodos() {
 async function cargarHistorial(anio = null, semestre = null) {
     try {
         let url = '/api/rondas/historial';
-        if (anio && semestre) {
-            url += `?anio=${anio}&semestre=${semestre}`;
-        } else if (anio) {
-            url += `?anio=${anio}`;
-        }
+        const params = [];
+        if (anio) params.push(`anio=${anio}`);
+        if (semestre) params.push(`semestre=${semestre}`);
+        if (params.length > 0) url += '?' + params.join('&');
         
         const response = await fetch(url);
         const data = await response.json();

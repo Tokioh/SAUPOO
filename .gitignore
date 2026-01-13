@@ -5,3 +5,7 @@ venv/
 .env
 *.env
 *.env.local
+
+#recursos
+outputs/*
+inputs/*

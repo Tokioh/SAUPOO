@@ -9,15 +9,15 @@ Las claves de 'condiciones' y 'segmento_key' provienen del config.json.
 class ManejadorPoliticaCuotas(IManejadorSegmento):
     """Segmento 1: Grupo de política de cuotas."""
     def cumple_criterio(self, aspirante: Aspirante) -> bool:
-        # Asumimos que cuotas es para 'PUEBLO_NACIONALIDAD'
-        return aspirante.condiciones.get("PUEBLO_NACIONALIDAD", False)
+        # Asumimos que cuotas es para 'PUEBLO_NACIONALIDAD' o 'PUEBLOS_NACIONALIDADES'
+        return aspirante.condiciones.get("PUEBLO_NACIONALIDAD", False) or aspirante.condiciones.get("PUEBLOS_NACIONALIDADES", False)
     def get_segmento_key(self) -> str:
         return "OFERTA_POLITICA_CUOTAS"
 
 class ManejadorVulnerabilidad(IManejadorSegmento):
     """Segmento 2: Grupo de mayor vulnerabilidad socioeconómica."""
     def cumple_criterio(self, aspirante: Aspirante) -> bool:
-        return aspirante.condiciones.get("CONDICION_SOCIOECONOMICA_POBREZA", False)
+        return aspirante.condiciones.get("CONDICION_SOCIOECONOMICA_POBREZA", False) or aspirante.condiciones.get("POBREZA", False)
     def get_segmento_key(self) -> str:
         return "OFERTA_VULNERABILIDAD_SOCIOECONOMICA"
 
@@ -39,7 +39,7 @@ class ManejadorBachilleresPN(IManejadorSegmento):
     """Segmento 5a: Bachilleres (Pueblos y Nacionalidades)."""
     def cumple_criterio(self, aspirante: Aspirante) -> bool:
         es_bachiller_curso = aspirante.condiciones.get("BACHILLER_CURSO_ACTUAL", False)
-        es_pn = aspirante.condiciones.get("PUEBLO_NACIONALIDAD", False)
+        es_pn = aspirante.condiciones.get("PUEBLO_NACIONALIDAD", False) or aspirante.condiciones.get("PUEBLOS_NACIONALIDADES", False)
         return es_bachiller_curso and es_pn
     def get_segmento_key(self) -> str:
         return "OFERTA_BACHILLER_P_N"

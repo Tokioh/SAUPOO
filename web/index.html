@@ -1,59 +1,218 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>SAU - Interfaz</title>
-  <link rel="stylesheet" href="/static/css/styles.css">
-  </head>
-  <body>
-    <header>
-      <h1>SAU - Interfaz Web</h1>
-    </header>
-
-    <main>
-      <section id="upload">
-        <h2>Subir archivos</h2>
-        <form id="uploadForm">
-          <div class="file-upload">
-            <label class="file-label">Oferta académica (CSV)</label>
-            <div class="file-row">
-              <input type="file" id="ofertaFile" accept=".csv" class="file-input" aria-describedby="ofertaFileName">
-              <button type="button" class="file-btn" data-target="ofertaFile">📁 Seleccionar</button>
-              <span class="file-name" id="ofertaFileName">Ninguno</span>
-            </div>
-          </div>
-
-          <div class="file-upload">
-            <label class="file-label">Matriz postulaciones (CSV)</label>
-            <div class="file-row">
-              <input type="file" id="postFile" accept=".csv" class="file-input" aria-describedby="postFileName">
-              <button type="button" class="file-btn" data-target="postFile">📁 Seleccionar</button>
-              <span class="file-name" id="postFileName">Ninguno</span>
-            </div>
-          </div>
-
-          <button type="submit">Subir</button>
-        </form>
-        <div id="uploadStatus"></div>
-      </section>
-
-      <section id="actions">
-        <h2>Acciones</h2>
-        <div class="actions-row">
-          <button id="btnEjecutar" class="primary">Ejecutar asignación</button>
-          <button id="btnVerResultados" class="secondary">Ver resultados</button>
-          <button id="btnDescargarResultados" class="secondary">Descargar CSV</button>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAU - Sistema de Asignación Universitaria</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <i class="fas fa-graduation-cap"></i>
+            <span>SAU</span>
         </div>
-        <div id="actionStatus"></div>
-      </section>
+        <ul class="navbar-menu">
+            <li>
+                <a href="#" class="nav-link active" data-section="asignacion">
+                    <i class="fas fa-plus-circle"></i>
+                    Nueva Asignación
+                </a>
+            </li>
+            <li>
+                <a href="#" class="nav-link" data-section="registros">
+                    <i class="fas fa-history"></i>
+                    Ver Registros
+                </a>
+            </li>
+        </ul>
+    </nav>
 
-      <section id="results">
-        <h2>Resultados</h2>
-        <div id="resultsArea">(Presiona "Ver / Descargar resultados")</div>
-      </section>
+    <!-- Contenedor Principal -->
+    <main class="main-container">
+        
+        <!-- Sección: Nueva Asignación -->
+        <section id="seccion-asignacion" class="section active">
+            <div class="section-header">
+                <h1><i class="fas fa-plus-circle"></i> Nueva Asignación de Cupos</h1>
+                <p>Sube los archivos y selecciona el período académico para ejecutar una ronda de asignación</p>
+            </div>
+
+            <form id="form-asignacion" class="form-card">
+                <!-- Período Académico -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-calendar-alt"></i> Período Académico
+                    </label>
+                    <div class="periodo-selector">
+                        <div class="input-group">
+                            <label for="anio">Año</label>
+                            <input type="number" id="anio" name="anio" min="2020" max="2050" value="2026" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="semestre">Semestre</label>
+                            <select id="semestre" name="semestre" required>
+                                <option value="1">Primer Semestre (1)</option>
+                                <option value="2">Segundo Semestre (2)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Archivo de Oferta Académica -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-file-csv"></i> Oferta Académica
+                    </label>
+                    <div class="file-upload" id="drop-oferta">
+                        <input type="file" id="archivo-oferta" name="archivo_oferta" accept=".csv" required hidden>
+                        <div class="file-upload-content">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Arrastra el archivo CSV o <span class="file-link">haz clic aquí</span></p>
+                            <span class="file-name" id="nombre-oferta">Ningún archivo seleccionado</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Archivo de Postulaciones -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-file-csv"></i> Matriz de Postulaciones
+                    </label>
+                    <div class="file-upload" id="drop-postulaciones">
+                        <input type="file" id="archivo-postulaciones" name="archivo_postulaciones" accept=".csv" required hidden>
+                        <div class="file-upload-content">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Arrastra el archivo CSV o <span class="file-link">haz clic aquí</span></p>
+                            <span class="file-name" id="nombre-postulaciones">Ningún archivo seleccionado</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Observaciones -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-comment-alt"></i> Observaciones (opcional)
+                    </label>
+                    <textarea id="observaciones" name="observaciones" rows="3" 
+                        placeholder="Añade notas o comentarios sobre esta ronda de asignación..."></textarea>
+                </div>
+
+                <!-- Botón de Ejecución -->
+                <button type="submit" class="btn btn-primary btn-lg" id="btn-ejecutar">
+                    <i class="fas fa-play"></i> Ejecutar Asignación
+                </button>
+            </form>
+
+            <!-- Resultado de la Asignación -->
+            <div id="resultado-asignacion" class="resultado-card hidden">
+                <div class="resultado-header">
+                    <i class="fas fa-check-circle"></i>
+                    <h2>Asignación Completada</h2>
+                </div>
+                <div class="resultado-stats" id="stats-asignacion">
+                    <!-- Se llena dinámicamente -->
+                </div>
+                <div class="resultado-actions">
+                    <button class="btn btn-secondary" id="btn-descargar-resultado">
+                        <i class="fas fa-download"></i> Descargar Resultados
+                    </button>
+                    <button class="btn btn-outline" id="btn-nueva-asignacion">
+                        <i class="fas fa-redo"></i> Nueva Asignación
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección: Ver Registros -->
+        <section id="seccion-registros" class="section">
+            <div class="section-header">
+                <h1><i class="fas fa-history"></i> Historial de Rondas</h1>
+                <p>Consulta y descarga los resultados de rondas anteriores</p>
+            </div>
+
+            <!-- Filtros -->
+            <div class="filtros-card">
+                <div class="filtro-grupo">
+                    <label for="filtro-anio">Año:</label>
+                    <select id="filtro-anio">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+                <div class="filtro-grupo">
+                    <label for="filtro-semestre">Semestre:</label>
+                    <select id="filtro-semestre">
+                        <option value="">Todos</option>
+                        <option value="1">Primero (1)</option>
+                        <option value="2">Segundo (2)</option>
+                    </select>
+                </div>
+                <button class="btn btn-secondary" id="btn-filtrar">
+                    <i class="fas fa-filter"></i> Filtrar
+                </button>
+                <button class="btn btn-outline" id="btn-limpiar-filtros">
+                    <i class="fas fa-times"></i> Limpiar
+                </button>
+            </div>
+
+            <!-- Resumen de Períodos -->
+            <div class="periodos-container" id="periodos-container">
+                <!-- Se llena dinámicamente -->
+            </div>
+
+            <!-- Tabla de Rondas -->
+            <div class="tabla-container">
+                <table class="tabla-rondas" id="tabla-rondas">
+                    <thead>
+                        <tr>
+                            <th>Período</th>
+                            <th>Ronda</th>
+                            <th>Fecha de Ejecución</th>
+                            <th>Aspirantes</th>
+                            <th>Asignados</th>
+                            <th>No Asignados</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-rondas">
+                        <!-- Se llena dinámicamente -->
+                    </tbody>
+                </table>
+                <div class="tabla-empty hidden" id="tabla-empty">
+                    <i class="fas fa-inbox"></i>
+                    <p>No hay rondas registradas</p>
+                </div>
+            </div>
+        </section>
     </main>
 
-    <script src="/static/js/main.js"></script>
-  </body>
+    <!-- Modal de Carga -->
+    <div class="modal-overlay hidden" id="modal-carga">
+        <div class="modal-content">
+            <div class="spinner"></div>
+            <p>Procesando asignación...</p>
+        </div>
+    </div>
+
+    <!-- Modal de Detalle de Ronda -->
+    <div class="modal-overlay hidden" id="modal-detalle">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h2><i class="fas fa-info-circle"></i> Detalle de Ronda</h2>
+                <button class="modal-close" id="btn-cerrar-modal">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-detalle-body">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast de Notificaciones -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="/js/main.js"></script>
+</body>
 </html>

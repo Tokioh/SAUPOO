@@ -1,48 +1,100 @@
-from app.core.interfaces.i_lector_datos import ILectorDatos
-from app.core.interfaces.i_escritor_resultados import IEscritorResultados
-from app.core.interfaces.i_strategy_asignacion import IStrategyAsignacion
-from app.core.models.normativa import Normativa
-import traceback
+from .interfaces.i_lector_datos import ILectorDatos
+from .interfaces.i_escritor_resultados import IEscritorResultados
+from .interfaces.i_strategy_asignacion import IStrategyAsignacion
+from .services.gestor_rondas import GestorRondas
+from .models.ronda import Ronda
+from .models.periodo import PeriodoAcademico
+from .models.postulacion import AsignacionResultado
+from .models.normativa import Normativa
+from typing import Optional, Tuple, List
+
 
 class MotorAsignacion:
     """
-    El orquestador principal. Recibe las implementaciones de las
-    interfaces a través de inyección de dependencias.
+    El orquestador principal del proceso de asignación.
+    
+    Coordina la lectura de datos, ejecución de la estrategia de asignación
+    y escritura de resultados. Integra el sistema de rondas para mantener
+    un historial de cada proceso de asignación.
     """
     def __init__(
         self,
         lector: ILectorDatos,
         escritor: IEscritorResultados,
-        estrategia: IStrategyAsignacion,
-        normativa: Normativa
+        strategy: IStrategyAsignacion,
+        normativa: Normativa,
+        gestor_rondas: Optional[GestorRondas] = None
     ):
         self.lector = lector
         self.escritor = escritor
-        self.estrategia = estrategia
+        self.strategy = strategy
         self.normativa = normativa
+        self.gestor_rondas = gestor_rondas or GestorRondas()
         print("Motor de Asignación inicializado.")
 
-    def ejecutar_proceso(self):
-        """Ejecuta el proceso completo de asignación."""
-        try:
-            print("\n[PASO 1] Cargando datos de entrada...")
-            aspirantes, carreras = self.lector.cargar_datos()
+    def ejecutar_ronda(
+        self,
+        periodo: PeriodoAcademico,
+        archivo_oferta: str,
+        archivo_postulaciones: str,
+        observaciones: Optional[str] = None
+    ) -> Tuple[Ronda, List[AsignacionResultado]]:
+        """
+        Ejecuta una ronda de asignación completa.
+        
+        Args:
+            periodo: Período académico (ej: 2026-1)
+            archivo_oferta: Ruta al CSV de oferta académica
+            archivo_postulaciones: Ruta al CSV de postulaciones
+            observaciones: Notas opcionales sobre la ronda
+        
+        Returns:
+            Tuple con la ronda creada y la lista de resultados
+        """
+        # Crear nueva ronda (esto también copia los archivos de entrada)
+        ronda = self.gestor_rondas.crear_ronda(
+            periodo=periodo,
+            archivo_oferta=archivo_oferta,
+            archivo_postulaciones=archivo_postulaciones,
+            observaciones=observaciones
+        )
+        
+        # Leer datos desde los archivos copiados al directorio del período
+        ruta_oferta = self.gestor_rondas.obtener_ruta_archivo(ronda, "oferta")
+        ruta_postulaciones = self.gestor_rondas.obtener_ruta_archivo(ronda, "postulaciones")
+        
+        # Usar el lector para cargar los datos
+        aspirantes, carreras = self.lector.cargar_datos_desde_rutas(
+            ruta_oferta, 
+            ruta_postulaciones
+        )
+        
+        # Ejecutar asignación
+        resultados = self.strategy.ejecutar_asignacion(aspirantes, carreras, self.normativa)
+        
+        # Actualizar estadísticas de la ronda
+        ronda.total_aspirantes = len(aspirantes)
+        ronda.total_asignados = len(resultados)  # Los resultados solo contienen asignados
+        ronda.total_no_asignados = ronda.total_aspirantes - ronda.total_asignados
+        
+        # Guardar resultados
+        ruta_resultados = self.gestor_rondas.obtener_ruta_archivo(ronda, "resultados")
+        self.escritor.escribir_resultados_en_ruta(resultados, ruta_resultados)
+        
+        # Registrar ronda en el historial
+        self.gestor_rondas.registrar_ronda(ronda)
+        
+        return ronda, resultados
+    
+    def obtener_historial_rondas(self, periodo: Optional[PeriodoAcademico] = None) -> List[Ronda]:
+        """Retorna el historial de rondas, opcionalmente filtrado por período."""
+        return self.gestor_rondas.obtener_historial(periodo)
+    
+    def obtener_ronda(self, periodo: PeriodoAcademico, numero: int) -> Optional[Ronda]:
+        """Obtiene información de una ronda específica."""
+        return self.gestor_rondas.obtener_ronda(periodo, numero)
+    
+    def obtener_periodos(self) -> List[PeriodoAcademico]:
+        """Retorna lista de períodos con rondas registradas."""
+        return self.gestor_rondas.obtener_periodos_disponibles()
 
-            print("\n[PASO 2] Ejecutando estrategia de asignación...")
-            resultados = self.estrategia.ejecutar_asignacion(
-                aspirantes, carreras, self.normativa
-            )
-
-            print("\n[PASO 3] Escribiendo resultados de salida...")
-            self.escritor.escribir_resultados(resultados)
-            
-            print("\n[PROCESO FINALIZADO] El proceso se completó exitosamente.")
-            
-            if self.normativa.log_reporte:
-                print("\nSe generaron las siguientes advertencias durante el proceso:")
-                for msg in self.normativa.log_reporte:
-                    print(f"- {msg}")
-
-        except Exception as e:
-            print(f"\n[ERROR FATAL] El proceso falló: {e}")
-            traceback.print_exc()

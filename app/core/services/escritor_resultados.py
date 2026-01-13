@@ -1,56 +1,51 @@
+import csv
 from typing import List
-import pandas as pd
-from app.core.interfaces.i_escritor_resultados import IEscritorResultados
+from dataclasses import asdict
 from app.core.models.postulacion import AsignacionResultado
 from app.core.models.normativa import Normativa
 
-class EscritorResultadosCSV(IEscritorResultados):
-    """Implementación que escribe los resultados en el formato de monitoreo CSV."""
-    
+
+class EscritorResultadosCSV:
+    """Escribe la lista de AsignacionResultado a un CSV de salida."""
     def __init__(self, normativa: Normativa):
-        self.ruta_salida = normativa.rutas['resultados_asignacion']
+        self.normativa = normativa
 
     def escribir_resultados(self, resultados: List[AsignacionResultado]) -> None:
-        if not resultados:
-            print("No se generaron asignaciones. El archivo de salida estará vacío.")
-            columnas = self._get_columnas_formato()
-            pd.DataFrame(columns=columnas).to_csv(self.ruta_salida, index=False)
+        """Escribe resultados usando la ruta definida en la normativa."""
+        ruta = self.normativa.rutas.get('resultados_asignacion')
+        if not ruta:
+            self.normativa.reportar_incidencia("No se encontró la ruta de resultados en la normativa.")
             return
-            
-        df = pd.DataFrame([r.__dict__ for r in resultados])
-        df_formateado = self._formatear_para_salida(df)
+        self.escribir_resultados_en_ruta(resultados, ruta)
+
+    def escribir_resultados_en_ruta(self, resultados: List[AsignacionResultado], ruta: str) -> None:
+        """
+        Escribe resultados en una ruta específica.
         
+        Args:
+            resultados: Lista de resultados de asignación
+            ruta: Ruta del archivo de salida
+        """
+        # Convertir dataclasses a dicts
+        rows = [asdict(r) for r in resultados]
+
+        if not rows:
+            # Crear archivo vacío con cabeceras mínimas
+            try:
+                with open(ruta, 'w', newline='', encoding='utf-8') as f:
+                    writer = csv.writer(f)
+                    writer.writerow(['id_aspirante', 'id_carrera_asignada', 'nombre_carrera_asignada', 'segmento_asignado', 'puntaje_postulacion', 'prioridad_asignada'])
+            except Exception as e:
+                self.normativa.reportar_incidencia(f"Error escribiendo archivo de resultados vacío: {e}")
+            return
+
+        fieldnames = list(rows[0].keys())
         try:
-            df_formateado.to_csv(self.ruta_salida, index=False)
-            print(f"Resultados guardados exitosamente en: {self.ruta_salida}")
+            with open(ruta, 'w', newline='', encoding='utf-8') as f:
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
+                for r in rows:
+                    writer.writerow(r)
         except Exception as e:
-            print(f"Error fatal al escribir el archivo de resultados: {e}")
-            raise
+            self.normativa.reportar_incidencia(f"Error escribiendo resultados: {e}")
 
-    def _get_columnas_formato(self) -> List[str]:
-        # Columnas según el formato de salida de monitoreo especificado
-        return [
-            "PERIODO", "IES_ID", "IDENTIFICACION", "FECHA_POSTULACION",
-            "PUNTAJE_POSTULACION", "SEGMENTO_ASPIRANTE", "INSTANCIA_POSTULACION",
-            "PRIORIDAD_ELECCION_CARRERA", "NOMBRE_CARRERA", "OFA_ID", "CUS_ID"
-        ]
-
-    def _formatear_para_salida(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Ajusta el DataFrame interno al formato de salida."""
-        mapeo_nombres = {
-            "periodo": "PERIODO", "id_ies": "IES_ID", "id_aspirante": "IDENTIFICACION",
-            "fecha_postulacion": "FECHA_POSTULACION", "puntaje_postulacion": "PUNTAJE_POSTULACION",
-            "segmento_asignado": "SEGMENTO_ASPIRANTE", "instancia_postulacion": "INSTANCIA_POSTULACION",
-            "prioridad_asignada": "PRIORIDAD_ELECCION_CARRERA",
-            "nombre_carrera_asignada": "NOMBRE_CARRERA", "id_carrera_asignada": "OFA_ID",
-            "cus_id": "CUS_ID"
-        }
-        
-        df_renombrado = df.rename(columns=mapeo_nombres)
-        columnas_finales = self._get_columnas_formato()
-        
-        for col in columnas_finales:
-            if col not in df_renombrado:
-                df_renombrado[col] = None
-        
-        return df_renombrado[columnas_finales]

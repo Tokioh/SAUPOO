@@ -3,8 +3,10 @@ from dependency_injector import containers, providers
 from app.core.models.normativa import Normativa
 from app.core.services.lector_datos import LectorDatosCSV
 from app.core.services.escritor_resultados import EscritorResultadosCSV
+from app.core.services.gestor_rondas import GestorRondas
 from app.core.strategy.estrategia_art_52 import EstrategiaAsignacionArt52
 from app.core.motor import MotorAsignacion
+
 
 class Container(containers.DeclarativeContainer):
     """
@@ -40,16 +42,23 @@ class Container(containers.DeclarativeContainer):
         normativa=normativa
     )
 
-    # 3. Proveedor de Estrategia
+    # 3. Proveedor del Gestor de Rondas
+    gestor_rondas = providers.Singleton(
+        GestorRondas,
+        directorio_base="outputs"
+    )
+
+    # 4. Proveedor de Estrategia
     estrategia_asignacion = providers.Factory(
         EstrategiaAsignacionArt52
     )
 
-    # 4. Proveedor del Motor
+    # 5. Proveedor del Motor
     motor = providers.Factory(
         MotorAsignacion,
         lector=lector_datos,
         escritor=escritor_resultados,
-        estrategia=estrategia_asignacion,
-        normativa=normativa
+        strategy=estrategia_asignacion,
+        normativa=normativa,
+        gestor_rondas=gestor_rondas
     )
